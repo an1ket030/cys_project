@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Set Intersection - Pro</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Packet Animation Layer -->
+    <div id="packet-layer"></div>
+
+    <div class="container animate-fade-in-up">
+        <header class="main-header">
+            <div class="header-content">
+                <i class="ph-fill ph-shield-check brand-icon"></i>
+                <div class="brand-text">
+                    <h1>Private Set Intersection</h1>
+                    <p>Cryptographic Privacy using <span>secp256r1</span> & <span>SHA-256</span></p>
+                </div>
+            </div>
+        </header>
+
+        <nav class="glass-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-protocol')">
+                <i class="ph ph-git-merge"></i> Protocol Visualizer
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-attacks')">
+                <i class="ph ph-shield-warning"></i> Threat Simulator
+            </button>
+        </nav>
+
+        <!-- PROTOCOL TAB -->
+        <main id="tab-protocol" class="tab-content active">
+            <!-- SETUP PANEL -->
+            <section class="glass-card setup-panel">
+                <div class="panel-header">
+                    <i class="ph ph-sliders"></i>
+                    <h2>Parameters Initialization</h2>
+                </div>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label><i class="ph ph-users"></i> Dataset Size (Node)</label>
+                        <input type="number" id="ds-size" value="100" min="1" max="5000">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="ph ph-intersect"></i> Expected Overlap</label>
+                        <input type="number" id="ds-overlap" value="15" min="0" max="5000">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateDataset()" id="btn-generate">
+                        <i class="ph ph-lightning"></i> Generate Cryptographic State
+                    </button>
+                </div>
+                <div id="setup-logs" class="console-log d-none"></div>
+            </section>
+
+            <!-- INTERSECTION RESULT BANNER -->
+            <section class="glass-card success-banner d-none" id="intersection-result">
+                <div class="banner-content">
+                    <div class="banner-icon"><i class="ph-fill ph-check-circle"></i></div>
+                    <div class="banner-text">
+                        <h3>Secure Intersection Computed</h3>
+                        <div class="stats">
+                            <h1 id="intersect-count">0</h1>
+                            <span>Matched Contacts</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="intersection-list custom-scroll" id="intersect-samples"></div>
+            </section>
+
+            <!-- PROTOCOL ARENA -->
+            <section class="arena-card">
+                <div class="arena-container">
+
+                    <!-- ALICE -->
+                    <div class="entity-node alice">
+                        <div class="entity-header">
+                            <div class="avatar"><i class="ph-fill ph-user-circle"></i></div>
+                            <div>
+                                <h3>Client A (Initiator)</h3>
+                                <p class="state-label" id="alice-state">Awaiting Configuration</p>
+                            </div>
+                        </div>
+                        <div class="data-view custom-scroll code-font" id="alice-list">
+                            <div class="placeholder">Empty Sandbox</div>
+                        </div>
+                    </div>
+
+                    <!-- NETWORK & CONTROL FLOW -->
+                    <div class="network-controller">
+                        <div class="channel-line"></div>
+
+                        <div class="control-steps">
+                            <button class="step-btn" id="btn-hash" onclick="stepHash()" disabled>
+                                <div class="step-num">1</div>
+                                <div class="step-text">SHA-256 Hash</div>
+                            </button>
+
+                            <button class="step-btn" id="btn-mask" onclick="stepMask()" disabled>
+                                <div class="step-num">2</div>
+                                <div class="step-text">ECC Mask H(x)^k</div>
+                            </button>
+
+                            <button class="step-btn" id="btn-double" onclick="stepDoubleMask()" disabled>
+                                <div class="step-num">3</div>
+                                <div class="step-text">Exchange & Secondary Mask</div>
+                            </button>
+
+                            <button class="step-btn final-step" id="btn-intersect" onclick="stepIntersect()" disabled>
+                                <i class="ph ph-target"></i> Compute Intersection
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BOB -->
+                    <div class="entity-node bob">
+                        <div class="entity-header">
+                            <div class="avatar"><i class="ph-fill ph-user-circle"></i></div>
+                            <div>
+                                <h3>Client B (Responder)</h3>
+                                <p class="state-label" id="bob-state">Awaiting Configuration</p>
+                            </div>
+                        </div>
+                        <div class="data-view custom-scroll code-font" id="bob-list">
+                            <div class="placeholder">Empty Sandbox</div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+        <!-- THREAT TAB -->
+        <main id="tab-attacks" class="tab-content">
+            <div class="threat-layout">
+                <!-- Threat Navigation -->
+                <div class="threat-nav glass-card">
+                    <div class="panel-header">
+                        <i class="ph-fill ph-bug"></i>
+                        <h2>Attack Vectors</h2>
+                    </div>
+                    <ul class="threat-list">
+                        <li class="active" onclick="switchThreat(0, this)">
+                            <i class="ph-fill ph-headphones"></i> Passive Eavesdropping
+                        </li>
+                        <li onclick="switchThreat(1, this)">
+                            <i class="ph-fill ph-books"></i> Dictionary Bruteforce
+                        </li>
+                        <li onclick="switchThreat(2, this)">
+                            <i class="ph-fill ph-warning-octagon"></i> Invalid ECC Payload
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Threat Arena -->
+                <div class="threat-arena glass-card">
+
+                    <!-- Eavesdropper -->
+                    <div class="threat-scenario active" id="scenario-0">
+                        <div class="scenario-header">
+                            <div>
+                                <h2>Man-In-The-Middle Eavesdropping</h2>
+                                <p>Capturing the payload traveling across the network wire.</p>
+                            </div>
+                            <span class="badge warning">Passive MITM</span>
+                        </div>
+
+                        <div class="animation-stage" id="stage-eavesdrop">
+                            <div class="node-mini alice-mini">A</div>
+                            <div class="wire"></div>
+                            <div class="hacker-mini"><i class="ph-fill ph-detective"></i></div>
+                            <div class="wire"></div>
+                            <div class="node-mini bob-mini">B</div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-warning" onclick="simEavesdrop()"><i class="ph ph-play"></i> Simulate
+                                Capture</button>
+                        </div>
+                        <div class="console-log custom-scroll" id="log-eavesdrop">Ready. Eavesdropper awaits
+                            transmission.</div>
+                    </div>
+
+                    <!-- Dictionary -->
+                    <div class="threat-scenario d-none" id="scenario-1">
+                        <div class="scenario-header">
+                            <div>
+                                <h2>Dictionary / Bruteforce</h2>
+                                <p>Malicious Node submits an enormous dictionary to map Alice's subset.</p>
+                            </div>
+                            <span class="badge danger">Malicious Protocol</span>
+                        </div>
+
+                        <div class="animation-stage" id="stage-dict">
+                            <div class="node-mini alice-mini"><i class="ph-fill ph-shield-check" id="alice-shield"></i>
+                                A</div>
+                            <div class="wire-wide"></div>
+                            <div class="node-mini bob-mini malicious"><i class="ph-fill ph-robot"></i> B</div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-danger" onclick="simDict()"><i class="ph ph-play"></i> Launch
+                                Dictionary Dump</button>
+                        </div>
+                        <div class="console-log custom-scroll" id="log-dictionary">Ready. Bob's dictionary payload
+                            compiled.</div>
+                    </div>
+
+                    <!-- Invalid Curve -->
+                    <div class="threat-scenario d-none" id="scenario-2">
+                        <div class="scenario-header">
+                            <div>
+                                <h2>Mathematical Vulnerability Inject</h2>
+                                <p>Falsified ECC point injection seeking algebra faults.</p>
+                            </div>
+                            <span class="badge danger">Active Alteration</span>
+                        </div>
+
+                        <div class="animation-stage" id="stage-curve">
+                            <div class="node-mini alice-mini">A</div>
+                            <div class="wire-wide"></div>
+                            <div class="node-mini bob-mini malicious">B</div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-danger" onclick="simCurve()"><i class="ph ph-play"></i> Inject
+                                Mutated Point (0xFF..)</button>
+                        </div>
+                        <div class="console-log custom-scroll" id="log-curve">Ready. Preparing fake mathematical
+                            coordinate payload.</div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+
+</html>

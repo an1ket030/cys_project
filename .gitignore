@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project specific
+psi-project/venv/
+psi-project/__pycache__/
+psi-project/.pytest_cache/
+test_out.txt
+
+# Artifacts
+.gemini/
+brain/
+task.md
+implementation_plan.md
+walkthrough.md

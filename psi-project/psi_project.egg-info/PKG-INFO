@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: psi-project
+Version: 1.0.0
+Summary: Private Set Intersection (PSI) Implementation
+Author: Student
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Requires-Dist: cryptography>=41.0.7
+Requires-Dist: ecdsa>=0.18.0
+Requires-Dist: numpy>=1.26.3
+Requires-Dist: scipy>=1.11.4
+Requires-Dist: pandas>=2.1.3
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pydantic>=2.5.2
+Requires-Dist: matplotlib>=3.8.2
+Requires-Dist: seaborn>=0.13.0
+Requires-Dist: click>=8.1.7
+Requires-Dist: tqdm>=4.66.1
+Requires-Dist: colorama>=0.4.6
+Dynamic: author
+Dynamic: classifier
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
