@@ -69,7 +69,7 @@ function firePackets(direction, count, color = "var(--purple-500)") {
             p.style.position = 'absolute';
             p.style.width = '10px'; p.style.height = '10px';
             p.style.background = color; p.style.borderRadius = '50%'; p.style.boxShadow = `0 0 10px ${color}`;
-            p.style.zIndex = 100; p.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
+            p.style.zIndex = 100; p.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
 
             // Hardcoded approx positions for visual flair
             const srcX = direction === 'A2B' ? window.innerWidth * 0.3 : window.innerWidth * 0.7;
@@ -81,9 +81,9 @@ function firePackets(direction, count, color = "var(--purple-500)") {
             layer.appendChild(p);
 
             // Trigger anim
-            setTimeout(() => { p.style.left = dstX + 'px'; }, 50);
-            setTimeout(() => { p.remove(); }, 1050);
-        }, i * 100);
+            setTimeout(() => { p.style.left = dstX + 'px'; }, 20);
+            setTimeout(() => { p.remove(); }, 450);
+        }, i * 40);
     }
 }
 
@@ -133,7 +133,7 @@ async function stepHash() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail);
 
-        await sleep(500); // UI delay 
+        await sleep(150); // UI delay 
         renderList('alice-list', 'SHA-256 Hashes', data.alice_hashed_sample, true);
         renderList('bob-list', 'SHA-256 Hashes', data.bob_hashed_sample, false);
 
@@ -150,7 +150,7 @@ async function stepMask() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail);
 
-        await sleep(800);
+        await sleep(250);
         renderList('alice-list', 'ECC Base Masked H(x)^k_a', data.alice_masked_sample, true);
         renderList('bob-list', 'ECC Base Masked H(x)^k_b', data.bob_masked_sample, false);
 
@@ -174,7 +174,7 @@ async function stepDoubleMask() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail);
 
-        await sleep(1500); // wait for packets
+        await sleep(500); // wait for packets
 
         // After exchange, they secondary mask the received data
         renderList('alice-list', 'Remote Data Doubly Masked (k_b^k_a)', data.alice_double_masked_sample, true);
@@ -193,7 +193,7 @@ async function stepIntersect() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail);
 
-        await sleep(1000);
+        await sleep(300);
 
         // UI Complete
         btn.disabled = true; btn.innerHTML = '<i class="ph ph-check-circle"></i> Computed Successfully';
@@ -226,9 +226,9 @@ async function simEavesdrop() {
     stage.appendChild(p);
 
     // move packet to middle
-    setTimeout(() => { p.style.left = '50%'; }, 50);
+    setTimeout(() => { p.style.left = '50%'; }, 20);
 
-    await sleep(1000);
+    await sleep(300);
     p.classList.add('intercepted'); // expands on hacker icon
     logLine('log-eavesdrop', "[HACKER] Packet intercepted successfully!");
 
@@ -239,10 +239,10 @@ async function simEavesdrop() {
 
         logLine('log-eavesdrop', `[HACKER] Dump: ${data.intercepted_hash.substring(0, 20)}...`);
         logLine('log-eavesdrop', "[HACKER] Firing bruteforce inverse discrete log...", "wrn");
-        await sleep(1500);
+        await sleep(500);
         logLine('log-eavesdrop', `[SYSTEM RESULT] ECDLP Infeasible. ${data.explanation}`, "suc");
 
-        setTimeout(() => { p.remove(); }, 1000);
+        setTimeout(() => { p.remove(); }, 300);
     } catch (e) { }
 }
 
@@ -260,12 +260,12 @@ async function simDict() {
             const p = document.createElement('div');
             p.className = 'packet malicious'; p.style.right = '70px'; p.style.left = 'auto'; p.style.opacity = '1';
             stage.appendChild(p);
-            setTimeout(() => { p.style.right = 'calc(100% - 100px)'; }, 50);
+            setTimeout(() => { p.style.right = 'calc(100% - 100px)'; }, 20);
             packets.push(p);
-        }, i * 200);
+        }, i * 50);
     }
 
-    await sleep(1000);
+    await sleep(300);
     logLine('log-dictionary', "[ALICE] Incoming connection. Verifying metadata...", "wrn");
 
     // Shield pops up
@@ -275,14 +275,14 @@ async function simDict() {
     setTimeout(() => shield.style.opacity = '1', 10);
     document.getElementById('alice-shield').style.color = 'var(--emerald-500)';
 
-    await sleep(800);
+    await sleep(300);
     packets.forEach(p => Math.random() > 0.5 ? p.style.opacity = 0 : p.classList.add('intercepted')); // crash into shield
 
     try {
         const res = await fetch('/api/attack/dictionary');
         const data = await res.json();
         logLine('log-dictionary', `[ALICE RESPONSE] ${data.detail}`, "suc");
-        setTimeout(() => { packets.forEach(p => p.remove()); shield.remove(); document.getElementById('alice-shield').style.color = ''; }, 1500);
+        setTimeout(() => { packets.forEach(p => p.remove()); shield.remove(); document.getElementById('alice-shield').style.color = ''; }, 500);
     } catch (e) { }
 }
 
@@ -290,7 +290,7 @@ async function simDict() {
 async function simCurve() {
     document.getElementById('log-curve').innerHTML = '';
     logLine('log-curve', "[HACKER] Crafting byte-modified ECC hex format...", "err");
-    await sleep(500);
+    await sleep(150);
     logLine('log-curve', "[HACKER] Dispatching payload to Node A.");
 
     const stage = document.getElementById('stage-curve');
@@ -300,11 +300,11 @@ async function simCurve() {
     stage.appendChild(p);
 
     // Moves to A
-    setTimeout(() => { p.style.right = 'calc(100% - 90px)'; }, 50);
-    await sleep(1000);
+    setTimeout(() => { p.style.right = 'calc(100% - 90px)'; }, 20);
+    await sleep(300);
 
     logLine('log-curve', "[ALICE] Decoding packet points...", "wrn");
-    await sleep(500);
+    await sleep(150);
 
     // Rejected visually - bounce back and disappear
     p.style.right = 'calc(100% - 150px)';
@@ -315,6 +315,6 @@ async function simCurve() {
         const res = await fetch('/api/attack/invalid_curve');
         const data = await res.json();
         logLine('log-curve', `[ALICE FAULT HANDLER] ${data.detail}`, "suc");
-        setTimeout(() => { p.remove(); }, 1000);
+        setTimeout(() => { p.remove(); }, 300);
     } catch (e) { }
 }
